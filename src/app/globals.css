@@ -1,12 +1,31 @@
-html, body {
-  height: 100%;
+/* Reset básico */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fuente global y ajustes de renderizado */
+:root {
+  font-family: var(--font-inter), sans-serif;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
   font-family: var(--font-inter), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: white;
+  overflow: hidden; /* Si no quieres scroll */
 }
 
-:root { /*esto inicia la variable, pero no lo usa*/
-  font-family: var(--font-inter), sans-serif;
+body {
+  line-height: 1.5;
+  color: #000;
+}
+
+img, picture {
+  max-width: 100%;
+  display: block;
 }
