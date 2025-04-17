@@ -2,7 +2,9 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  font-family: var(--font-inter), sans-serif; /*esto coge la variable :root y la usa en el html y el body*/
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 :root { /*esto inicia la variable, pero no lo usa*/

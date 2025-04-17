@@ -1,5 +1,5 @@
 import styles from './Page.module.css';
-import RojoG from './components/Botones/RojoG';
+import RojoG from '../components/Botones/RojoG';
 
 export default function Home() {
   return (
