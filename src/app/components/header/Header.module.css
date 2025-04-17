@@ -1,0 +1,49 @@
+
+.navBar{
+    background-color: #db001b;
+    color: white;
+    padding: 1rem;
+    position: relative;
+    height: 30px;
+}
+
+.topCircle {
+    background-color: #db001b;
+    width: 80%; /* Puedes ajustar el tamaño */
+    height: 70px;
+    border-bottom-left-radius: 100px;
+    border-bottom-right-radius: 0;
+    position: absolute;
+    top: 0;
+    left: 20%;
+    z-index: 10;
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .contenedorP {
+    display: flex;
+    justify-content: center; 
+    align-items: flex-start; 
+    gap: 4rem; 
+    margin-left: 4rem;
+    margin-top: 0.5rem; /* Valor negativo para subir el texto */
+    margin-bottom: 2rem; 
+    font-size: 1rem; 
+    font-weight: bold; 
+    color: white;
+}
+.contenedorP p {
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+  
+.contenedorP p:hover {
+    text-decoration: underline;
+    transform: scale(1.05); /* efecto de agrandar un poco */
+    color: #ffccd5; /* color claro o más brillante, opcional */
+  }
+
+.logo {
+    margin-top: -35px;
+    margin-left: 20px;
+}

@@ -1,0 +1,26 @@
+.botonRojo {
+    background-color: #db001b;
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 2rem; 
+    border-radius: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out;
+    width: 450px;
+    height: 70px;
+    margin: 100px auto 0; 
+  
+    /* Centrar el texto verticalmente y horizontalmente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+  }
+  
+  
+  .botonRojo:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.4);
+  }

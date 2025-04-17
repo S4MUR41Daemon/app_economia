@@ -1,0 +1,10 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-inter), sans-serif; /*esto coge la variable :root y la usa en el html y el body*/
+}
+
+:root { /*esto inicia la variable, pero no lo usa*/
+  font-family: var(--font-inter), sans-serif;
+}
