@@ -1,10 +1,10 @@
 import styles from './rojoG.module.css';
 
-export default function RojoG({ text }) {
-    return (
-      <div className={styles.botonRojo}>
-        {text}
-      </div>
-    );
-  }
+export default function RojoG({ text, onClick }) {
+  return (
+    <button className={styles.botonRojo} onClick={onClick}>
+      {text}
+    </button>
+  );
+}
   
