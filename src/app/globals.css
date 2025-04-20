@@ -29,3 +29,40 @@ img, picture {
   max-width: 100%;
   display: block;
 }
+
+/* Aplica solo al layout de nueva orden */
+.layoutNuevaOrden {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Asegura que el main crezca y haga scroll si se necesita */
+main.contenidoNuevaOrden {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* Si quieres también dar margen al footer */
+footer {
+  margin-top: 2rem;
+}
+
+/* Wrapper general que asegura que el contenido se distribuya bien */
+.nuevaOrdenWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* asegura altura mínima de viewport */
+}
+
+/* El contenido crece para empujar el footer abajo */
+.nuevaOrdenMain {
+  flex-grow: 1;
+  padding: 2rem;
+}
+
+/* Asegura que el body tenga scroll si es necesario */
+body {
+  overflow-y: auto;
+}
