@@ -1,14 +1,10 @@
 .footer {
-    background-color: #db001b;
-    color: white;
-    text-align: center;
-    padding: 1rem;
-    font-weight: bold;
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    position: static; /* o directamente elimina la propiedad position */
     width: 100%;
-    height: 3.5rem;
+    background-color: #d6001c;
+    color: white;
+    padding: 1rem;
+    text-align: center;
   }
   
   /* Media queries para responsividad */
