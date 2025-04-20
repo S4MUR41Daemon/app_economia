@@ -1,26 +1,50 @@
 .botonRojo {
-    background-color: #db001b;
-    color: white;
-    padding: 1rem 2rem;
-    font-size: 2rem; 
-    border-radius: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease-in-out;
-    width: 450px;
-    height: 70px;
-    margin: 100px auto 0; 
+  background-color: #db001b;
+  color: white;
+  padding: 1rem 2rem;
+  font-size: 1.75rem;
+  border-radius: 3rem;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease-in-out;
+  width: 350px;
+  max-width: 90%;
+  height: 60px;
+  margin: 0 auto;
   
-    /* Centrar el texto verticalmente y horizontalmente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 50px;
+  /* Centrar el texto verticalmente y horizontalmente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.botonRojo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.botonRojo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Media queries para responsividad */
+@media (max-width: 768px) {
+  .botonRojo {
+    width: 80%;
+    font-size: 1.5rem;
+    height: 60px;
+    padding: 0.75rem 1.5rem;
   }
-  
-  
-  .botonRojo:hover {
-    transform: translateY(-2px);
-    box-shadow: 0px 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 480px) {
+  .botonRojo {
+    width: 90%;
+    font-size: 1.25rem;
+    height: 50px;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
   }
+}
