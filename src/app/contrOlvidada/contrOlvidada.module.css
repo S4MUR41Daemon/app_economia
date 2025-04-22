@@ -1,0 +1,15 @@
+.fondo {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: white;
+}
+
+.imagenDecorativa {
+    flex: 1;
+    background-image: url('/fondoLogin.png');
+    background-repeat: no-repeat;
+    /*funciones guapas de css*/
+    background-size: cover; /*cubre todo el div aunque tenga que recortar por los lados.*/
+    background-position: right center; /* mantiene la img pegada a la derecha y centrada verticalmente.*/
+  }

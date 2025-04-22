@@ -61,6 +61,7 @@ export default function Login() {
           <br />
           <input type="submit" value="Enviar" />
         </form>
+          <h3>¿has olvidado tu contraseña?</h3>
       </main>
       <div className={styles.imagenDecorativa}></div>
     </div>
