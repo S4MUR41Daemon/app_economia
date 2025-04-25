@@ -157,3 +157,20 @@
     font-size: 0.9rem;
   }
 }
+
+.menuBtn {
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  white-space: nowrap;
+}
+
+.menuBtn:hover {
+  text-decoration: underline;
+  transform: scale(1.05);
+  color: #ffccd5;
+}
