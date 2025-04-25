@@ -27,26 +27,25 @@
     background-color: #ffcccc;
     border-radius: 8px;
     padding: 15px;
-    width: 180px;
+    height: 10rem;
+    width: 20rem;
     box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .saldo-title {
-    font-size: 12px;
+    font-size: 1.5rem;
     color: #333;
     margin-bottom: 5px;
+    padding-top: 3%;
 }
 
 .saldo-amount {
-    font-size: 24px;
+    font-size: 1.5rem;
     font-weight: bold;
     margin-bottom: 5px;
+    
 }
 
-.saldo-rate {
-    font-size: 10px;
-    color: #666;
-}
 
 /* Sección de filtro */
 .filtro-section {
@@ -71,6 +70,14 @@
     background-color: #ffafaf;
     border-radius: 15px;
     padding: 15px;
+}
+
+/* Título de transacciones (nuevo) */
+.transaction-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: #333;
 }
 
 /* Barra de búsqueda */
@@ -106,6 +113,9 @@
 /* Detalles del proveedor */
 .provider-details {
     margin-bottom: 15px;
+    background-color: #ffe6e6;
+    border-radius: 10px;
+    padding: 15px;
 }
 
 .provider-row {
@@ -167,6 +177,11 @@
 
 .transaction-text {
     font-size: 14px;
+}
+
+.transaction-date {
+    color: red;
+    font-weight: bold;
 }
 
 .dropdown-arrow {
