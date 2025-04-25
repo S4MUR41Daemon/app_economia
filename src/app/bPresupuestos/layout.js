@@ -9,21 +9,18 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Nueva orden",
-  description: "Formulario de nueva orden",
+  title: "Bolsa de Presupuestos",
+  description: "Últimas órdenes de presupuesto",
 };
 
-export default function NuevaOrdenLayout({ children }) {
-    return (
-      <html lang="es">
-        <body className={`${inter.variable}`}>
-          <div className="nuevaOrdenWrapper">
-            <Header />
-            <main className="nuevaOrdenMain">{children}</main>
-            <Footer />
-          </div>
-        </body>
-      </html>
-    );
-  }
-  
+export default function BolsaPresupuestosLayout({ children }) {
+  return (
+    <>
+      <Header />
+      <main className={`${inter.variable} nuevaOrdenMain`}>
+        {children}
+      </main>
+      <Footer />
+    </>
+  );
+}
