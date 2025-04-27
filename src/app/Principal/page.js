@@ -35,7 +35,7 @@ export default function Home() {
       <h1 className={styles.h1}>DISPONIBLE</h1>
       <div className={styles.contenedorDiv}>
         <div className={styles.sInv}>
-          <h2 className={styles.cardTitle}>SALDO INVENTARIABLE:</h2>
+          <h2 className={styles.cardTitle}>SALDO INVERSIONES:</h2>
           <p className={styles.cardValue}>
             {inventariable !== null ? Number(inventariable).toLocaleString('es-ES') : 'Cargando...'}
           </p>
