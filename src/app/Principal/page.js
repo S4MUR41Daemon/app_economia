@@ -17,11 +17,11 @@ export default function Home() {
       try {
         const resInv = await fetch(`/api/cantidad_inventariable?id=${id}`);
         const dataInv = await resInv.json();
-        setInventariable(dataInv.cantidad_inv);
+        setInventariable(dataInv.cantidad);
 
         const resPresu = await fetch(`/api/cantidad_presupuesto?id=${id}`);
         const dataPresu = await resPresu.json();
-        setPresupuesto(dataPresu.cantidad_presu);
+        setPresupuesto(dataPresu.cantidad);
       } catch (error) {
         console.error('Error al cargar los saldos:', error);
       }
@@ -35,15 +35,15 @@ export default function Home() {
       <h1 className={styles.h1}>DISPONIBLE</h1>
       <div className={styles.contenedorDiv}>
         <div className={styles.sInv}>
-          <h2 className={styles.cardTitle}>SALDO INVENTARIABLE:</h2>
+          <h2 className={styles.cardTitle}>SALDO INVERSIONES:</h2>
           <p className={styles.cardValue}>
-            {inventariable !== null ? Number(inventariable).toLocaleString('es-ES') : 'Cargando...'}
+            {inventariable !== null ? Number(inventariable).toLocaleString('es-ES') + '€' : 'Cargando...'}
           </p>
         </div>
         <div className={styles.sPres}>
           <h2 className={styles.cardTitle}>SALDO PRESUPUESTO:</h2>
           <p className={styles.cardValue}>
-            {presupuesto !== null ? Number(presupuesto).toLocaleString('es-ES') : 'Cargando...'}
+            {presupuesto !== null ? Number(presupuesto).toLocaleString('es-ES') + '€' : 'Cargando...'}
           </p>
         </div>
       </div>

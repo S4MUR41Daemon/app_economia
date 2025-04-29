@@ -9,8 +9,9 @@ export async function GET() {
     database: process.env.DB_NAME,
   });
 
+  // CAMBIAR id_departamento por id
+  const [rows] = await connection.execute('SELECT id, tipo FROM Departamento');
 
-  const [rows] = await connection.execute('SELECT id_departamento, tipo FROM Departamento');
   await connection.end();
 
   return NextResponse.json(rows);

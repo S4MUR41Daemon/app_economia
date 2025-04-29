@@ -46,7 +46,7 @@ export default function Login() {
           >
             <option value="">-- Selecciona --</option>
             {departamentos.map((dep) => (
-              <option key={dep.id_departamento} value={dep.id_departamento}>
+              <option key={dep.id} value={dep.id}>
                 {dep.tipo}
               </option>
             ))}
