@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
-import styles from './Header.module.css'
+import styles from './Header.module.css';
 import Image from 'next/image';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // 👈 Añadido
+import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react'; // 👈 Importamos NextAuth
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const router = useRouter(); // 👈 Instancia del router
+  const router = useRouter();
+  const { data: session } = useSession(); // 👈 Obtenemos datos del usuario
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
@@ -15,11 +17,11 @@ export default function Header() {
 
   const goTo = (path) => {
     router.push(path);
+    setMenuOpen(false);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("departamento");
-    router.push('/');
+    signOut({ callbackUrl: '/' }); // 👈 Cierra sesión y redirige al login
   };
 
   return (
@@ -39,6 +41,14 @@ export default function Header() {
             <button onClick={() => goTo('/bInversiones')} className={styles.menuBtn}>BOLSA DE INVERSIONES</button>
             <button onClick={() => goTo('/bPresupuestos')} className={styles.menuBtn}>BOLSA DE PRESUPUESTOS</button>
             <button onClick={handleLogout} className={styles.menuBtn}>CERRAR SESIÓN</button>
+
+            {/* Nombre del usuario, si está logueado */}
+            {session?.user?.name && (
+              <span className={styles.nombreUsuario}>
+                {session.user.name.toUpperCase()}
+              </span>
+            )}
+
           </div>
         </div>
         <button 
