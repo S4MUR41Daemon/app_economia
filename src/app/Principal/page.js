@@ -2,18 +2,33 @@
 
 import styles from './Page.module.css';
 import RojoG from '../components/Botones/RojoG';
+import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [inventariable, setInventariable] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
 
+  // Si no hay sesión, redirige al login
   useEffect(() => {
-    const id = localStorage.getItem('departamento');
+    if (status === 'unauthenticated') {
+      router.push('/');
+    }
+  }, [status, router]);
+
+  // Una vez autenticado, carga los saldos
+  useEffect(() => {
+    if (status !== 'authenticated') return;
+
+    const id = session.user.departamentos?.[0]?.id;
+
+    if (!id) return;
 
     const fetchSaldos = async () => {
-      if (!id) return;
-
       try {
         const resInv = await fetch(`/api/cantidad_inventariable?id=${id}`);
         const dataInv = await resInv.json();
@@ -28,7 +43,11 @@ export default function Home() {
     };
 
     fetchSaldos();
-  }, []);
+  }, [status, session]);
+
+  if (status === 'loading') {
+    return <main className={styles.main}><h2>Cargando sesión...</h2></main>;
+  }
 
   return (
     <main className={styles.main}>
@@ -37,13 +56,17 @@ export default function Home() {
         <div className={styles.sInv}>
           <h2 className={styles.cardTitle}>SALDO INVERSIONES:</h2>
           <p className={styles.cardValue}>
-            {inventariable !== null ? Number(inventariable).toLocaleString('es-ES') + '€' : 'Cargando...'}
+            {inventariable !== null
+              ? Number(inventariable).toLocaleString('es-ES') + '€'
+              : 'Cargando...'}
           </p>
         </div>
         <div className={styles.sPres}>
           <h2 className={styles.cardTitle}>SALDO PRESUPUESTO:</h2>
           <p className={styles.cardValue}>
-            {presupuesto !== null ? Number(presupuesto).toLocaleString('es-ES') + '€' : 'Cargando...'}
+            {presupuesto !== null
+              ? Number(presupuesto).toLocaleString('es-ES') + '€'
+              : 'Cargando...'}
           </p>
         </div>
       </div>
