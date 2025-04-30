@@ -1,68 +1,51 @@
 'use client';
 
-import styles from './Login.module.css';
-import { useState, useEffect } from 'react';
+import { useSession, signIn } from 'next-auth/react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './Login.module.css';
 
 export default function Login() {
-  const [departamentos, setDepartamentos] = useState([]);
-  const [departamento, setDepartamento] = useState('');
+  const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Fetch de departamentos al cargar el componente
   useEffect(() => {
-    const fetchDepartamentos = async () => {
-      try {
-        const res = await fetch('/api/departamentos');
-        const data = await res.json();
-        setDepartamentos(data);
-      } catch (err) {
-        console.error('Error al cargar departamentos:', err);
-      }
-    };
-
-    fetchDepartamentos();
-  }, []);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (departamento) {
-      localStorage.setItem('departamento', departamento);
+    if (status === 'authenticated') {
       router.push('/Principal');
     }
-  };
+  }, [status, router]);
+
+  if (status === 'loading') {
+    return (
+      <div className={styles.fondo}>
+        <main className={styles.contenido}>
+          <h2>Cargando sesión...</h2>
+        </main>
+        <div className={styles.imagenDecorativa}></div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.fondo}>
       <main className={styles.contenido}>
         <h1>Bienvenido</h1>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="departamento">Selecciona tu departamento:</label>
-          <select
-            id="departamento"
-            name="departamento"
-            value={departamento}
-            onChange={(e) => setDepartamento(e.target.value)}
+        <form onSubmit={(e) => e.preventDefault()}>
+          <label htmlFor="google">Accede con Google:</label>
+          <button
+            type="button"
+            onClick={() => signIn('google')}
+            className={styles.botonGoogle}
           >
-            <option value="">-- Selecciona --</option>
-            {departamentos.map((dep) => (
-              <option key={dep.id} value={dep.id}>
-                {dep.tipo}
-              </option>
-            ))}
-          </select>
-
-          <br />
-          <label htmlFor="Usuario">Nombre de usuario:</label>
-          <input type="text" id="Usuario" name="Usuario" placeholder="Inserte su nombre de usuario" />
-          <br />
-          <label htmlFor="Contraseña">Contraseña:</label>
-          <input type="password" id="Contraseña" name="Contraseña" placeholder="Inserte su contraseña" />
-          <br />
-          <input type="submit" value="Enviar" />
+            Iniciar sesión con Google
+          </button>
         </form>
-          <h3>¿has olvidado tu contraseña?</h3>
+
+        <p className={styles.pregunta}>
+          ¿Has olvidado tu contraseña?
+        </p>
       </main>
+
       <div className={styles.imagenDecorativa}></div>
     </div>
   );
