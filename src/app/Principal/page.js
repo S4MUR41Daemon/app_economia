@@ -12,29 +12,35 @@ export default function Home() {
 
   const [inventariable, setInventariable] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
+  const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState('');
 
-  // Si no hay sesión, redirige al login
+  // Redirige si no hay sesión
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/');
     }
   }, [status, router]);
 
-  // Una vez autenticado, carga los saldos
+  // Cargar departamento inicial
   useEffect(() => {
-    if (status !== 'authenticated') return;
+    if (status === 'authenticated') {
+      const dep = session.user.departamentos?.[0]?.id || '';
+      setDepartamentoSeleccionado(dep);
+      localStorage.setItem('departamentoSeleccionado', dep);
+    }
+  }, [status, session]);
 
-    const id = session.user.departamentos?.[0]?.id;
-
-    if (!id) return;
+  // Cargar saldos según departamento seleccionado
+  useEffect(() => {
+    if (status !== 'authenticated' || !departamentoSeleccionado) return;
 
     const fetchSaldos = async () => {
       try {
-        const resInv = await fetch(`/api/cantidad_inventariable?id=${id}`);
+        const resInv = await fetch(`/api/cantidad_inventariable?id=${departamentoSeleccionado}`);
         const dataInv = await resInv.json();
         setInventariable(dataInv.cantidad);
 
-        const resPresu = await fetch(`/api/cantidad_presupuesto?id=${id}`);
+        const resPresu = await fetch(`/api/cantidad_presupuesto?id=${departamentoSeleccionado}`);
         const dataPresu = await resPresu.json();
         setPresupuesto(dataPresu.cantidad);
       } catch (error) {
@@ -43,15 +49,46 @@ export default function Home() {
     };
 
     fetchSaldos();
-  }, [status, session]);
+  }, [status, departamentoSeleccionado]);
+
+  const esAdminOContable =
+    session?.user?.rol === 'admin' || session?.user?.rol === 'contable';
+
+  const handleSelect = (e) => {
+    const nuevoId = e.target.value;
+    setDepartamentoSeleccionado(nuevoId);
+    localStorage.setItem('departamentoSeleccionado', nuevoId);
+  };
 
   if (status === 'loading') {
-    return <main className={styles.main}><h2>Cargando sesión...</h2></main>;
+    return (
+      <main className={styles.main}>
+        <h2>Cargando sesión...</h2>
+      </main>
+    );
   }
 
   return (
     <main className={styles.main}>
       <h1 className={styles.h1}>DISPONIBLE</h1>
+
+      {esAdminOContable && (
+        <div className={styles.selectorDepartamentos}>
+          <label htmlFor="departamento">Ver datos de departamento:</label>
+          <select
+            id="departamento"
+            value={departamentoSeleccionado}
+            onChange={handleSelect}
+          >
+            {session.user.departamentos.map((dep) => (
+              <option key={dep.id} value={dep.id}>
+                {dep.tipo}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className={styles.contenedorDiv}>
         <div className={styles.sInv}>
           <h2 className={styles.cardTitle}>SALDO INVERSIONES:</h2>
@@ -70,6 +107,7 @@ export default function Home() {
           </p>
         </div>
       </div>
+
       <div className={styles.botonContainer}>
         <RojoG text="NUEVA ORDEN" />
       </div>

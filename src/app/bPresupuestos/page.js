@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
 import './presupuesto.css';
 import { useState, useEffect } from 'react';
+import useDepartamento from '@/utils/useDepartamento'; // Ajusta si la ruta cambia
 
 export default function BolsaPresupuestos() {
+  const departamento = useDepartamento();
   const [ordenes, setOrdenes] = useState([]);
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoPresupuesto, setSaldoPresupuesto] = useState(0);
 
   useEffect(() => {
+    if (!departamento) return;
+
     const fetchData = async () => {
       try {
-        const departamento = localStorage.getItem('departamento');
-        if (!departamento) return;
-
         // Traer saldo actual
         const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
         const saldoData = await resSaldo.json();
@@ -29,7 +30,7 @@ export default function BolsaPresupuestos() {
     };
 
     fetchData();
-  }, []);
+  }, [departamento]);
 
   const toggleTransaction = (codigo) => {
     setExpandedTransaction(expandedTransaction === codigo ? null : codigo);
@@ -39,6 +40,10 @@ export default function BolsaPresupuestos() {
     const nuevaFecha = new Date(fecha);
     return nuevaFecha.toLocaleDateString('es-ES');
   };
+
+  if (!departamento) {
+    return <p style={{ textAlign: 'center', padding: '2rem' }}>Cargando departamento...</p>;
+  }
 
   return (
     <div className="bolsa-inversiones">

@@ -130,3 +130,15 @@
     font-size: 2rem;
   }
 }
+
+.selectorDepartamentos {
+  margin: 1.5rem auto;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.selectorDepartamentos select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+}
