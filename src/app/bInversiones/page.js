@@ -1,19 +1,20 @@
-"use client";
+'use client';
 
 import './bolsa-inversiones.css';
 import { useState, useEffect } from 'react';
+import useDepartamento from '@/utils/useDepartamento'; // ajusta la ruta si es necesario
 
 export default function BolsaInversiones() {
+  const departamento = useDepartamento();
   const [ordenes, setOrdenes] = useState([]);
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoInventariable, setSaldoInventariable] = useState(0);
 
   useEffect(() => {
+    if (!departamento) return;
+
     const fetchData = async () => {
       try {
-        const departamento = localStorage.getItem('departamento');
-        if (!departamento) return;
-
         const resSaldo = await fetch(`/api/orden_inver?departamento=${departamento}`);
         const saldoData = await resSaldo.json();
         setSaldoInventariable(saldoData.saldoInventariable);
@@ -27,7 +28,7 @@ export default function BolsaInversiones() {
     };
 
     fetchData();
-  }, []);
+  }, [departamento]);
 
   const toggleTransaction = (codigo) => {
     setExpandedTransaction(expandedTransaction === codigo ? null : codigo);
@@ -37,6 +38,10 @@ export default function BolsaInversiones() {
     const nuevaFecha = new Date(fecha);
     return nuevaFecha.toLocaleDateString('es-ES');
   };
+
+  if (!departamento) {
+    return <p style={{ textAlign: 'center', padding: '2rem' }}>Cargando departamento...</p>;
+  }
 
   return (
     <div className="bolsa-inversiones">
