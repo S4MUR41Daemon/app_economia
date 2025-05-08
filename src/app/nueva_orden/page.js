@@ -1,12 +1,13 @@
 'use client';
 
 import styles from './orden.module.css';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import useDepartamento from '@/utils/useDepartamento';
 
 export default function Orden() {
   const departamento = useDepartamento();
 
+  const [proveedores, setProveedores] = useState([]);
   const [formData, setFormData] = useState({
     proveedor: '',
     saldo: '',
@@ -16,6 +17,22 @@ export default function Orden() {
     comentarios: '',
   });
 
+  // Cargar proveedores del departamento
+  useEffect(() => {
+    const fetchProveedores = async () => {
+      if (!departamento) return;
+      try {
+        const res = await fetch(`/api/proveedores?departamento=${departamento}`);
+        const data = await res.json();
+        setProveedores(data.proveedores || []);
+      } catch (err) {
+        console.error('Error al cargar proveedores:', err);
+      }
+    };
+
+    fetchProveedores();
+  }, [departamento]);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prev) => ({
@@ -24,23 +41,46 @@ export default function Orden() {
     }));
   };
 
+  const handleAddProveedor = async () => {
+    if (!formData.nuevoProveedor.trim()) return;
+
+    try {
+      const res = await fetch('/api/proveedores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nombre: formData.nuevoProveedor,
+          departamento,
+        }),
+      });
+
+      const { cif } = await res.json();
+
+      const resLista = await fetch(`/api/proveedores?departamento=${departamento}`);
+      const data = await resLista.json();
+      setProveedores(data.proveedores || []);
+
+      setFormData((prev) => ({
+        ...prev,
+        proveedor: cif,
+        nuevoProveedor: '',
+      }));
+    } catch (err) {
+      console.error('Error al añadir proveedor:', err);
+      alert('No se pudo añadir el proveedor');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!departamento) {
-      alert('No se ha seleccionado ningún departamento.');
-      return;
-    }
+    if (!departamento) return alert('No hay departamento seleccionado.');
 
     try {
       const datos = new FormData();
       datos.append('departamento', departamento);
-      datos.append('proveedor', formData.proveedor);
-      datos.append('nuevoProveedor', formData.nuevoProveedor);
-      datos.append('saldo', formData.saldo);
-      datos.append('numInversion', formData.numInversion);
-      datos.append('pdf', formData.pdf);
-      datos.append('comentarios', formData.comentarios);
+      Object.entries(formData).forEach(([key, value]) =>
+        datos.append(key, value)
+      );
 
       const res = await fetch('/api/nueva_orden', {
         method: 'POST',
@@ -48,13 +88,10 @@ export default function Orden() {
       });
 
       if (!res.ok) throw new Error('Error al subir la orden');
-
       alert('Orden subida correctamente');
-      // Puedes resetear el form si quieres:
-      // setFormData({ ... });
-    } catch (error) {
-      console.error('Error:', error);
-      alert('Hubo un error al subir la orden');
+    } catch (err) {
+      console.error(err);
+      alert('Error al subir la orden');
     }
   };
 
@@ -64,103 +101,94 @@ export default function Orden() {
 
   return (
     <main className={styles.main}>
-      <form onSubmit={handleSubmit}>
-        <div className={styles.fila}>
-          {/* Proveedor */}
-          <div className={styles.columna}>
-            <label htmlFor="proveedor">Proveedor:</label>
-            <select
-              id="proveedor"
-              name="proveedor"
-              className={styles.select}
-              value={formData.proveedor}
-              onChange={handleChange}
-            >
-              <option value="">Proveedor</option>
-              {/* Aquí puedes hacer un map con proveedores reales */}
-              <option value="1">Proveedor 1</option>
-              <option value="2">Proveedor 2</option>
-            </select>
-          </div>
+      <form onSubmit={handleSubmit} className={styles.formVertical}>
+        <label htmlFor="proveedor" className={styles.etiqueta}>Proveedor:</label>
+        <select
+          id="proveedor"
+          name="proveedor"
+          className={styles.select}
+          value={formData.proveedor}
+          onChange={handleChange}
+        >
+          <option value="">Seleccione un proveedor</option>
+          {proveedores.map((prov) => (
+            <option key={prov.id} value={prov.id}>
+              {prov.nombre}
+            </option>
+          ))}
+        </select>
 
-          {/* Departamento */}
-          <div className={styles.columna}>
-            <label>Departamento:</label>
-            <input
-              type="text"
-              value={departamento}
-              className={styles.select}
-              disabled
-            />
-          </div>
-        </div>
+        <label htmlFor="departamento" className={styles.etiqueta}>Departamento:</label>
+        <input
+          type="text"
+          id="departamento"
+          className={styles.select}
+          value={departamento}
+          disabled
+        />
 
-        <div className={styles.fila}>
-          {/* Saldo + nuevo proveedor */}
-          <div className={styles.columna}>
-            <label htmlFor="saldo">Saldo gastado:</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <input
-                type="text"
-                id="saldo"
-                name="saldo"
-                className={styles.input}
-                placeholder="8000€"
-                value={formData.saldo}
-                onChange={handleChange}
-              />
-              <input
-                type="text"
-                name="nuevoProveedor"
-                className={styles.input}
-                placeholder="Añadir proveedor"
-                value={formData.nuevoProveedor}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-        </div>
+        <label htmlFor="saldo" className={styles.etiqueta}>Saldo gastado:</label>
+        <input
+          type="text"
+          id="saldo"
+          name="saldo"
+          className={styles.input}
+          value={formData.saldo}
+          onChange={handleChange}
+          placeholder="8000€"
+        />
 
-        <div className={styles.fila}>
-          {/* Inversión + PDF */}
-          <div className={styles.columna}>
-            <label htmlFor="numInversion">Número de inversión:</label>
-            <div style={{ display: 'flex', gap: '1rem' }}>
-              <input
-                type="text"
-                id="numInversion"
-                name="numInversion"
-                className={styles.input}
-                placeholder="Nº Inversión"
-                value={formData.numInversion}
-                onChange={handleChange}
-              />
-              <input
-                type="file"
-                id="pdf"
-                name="pdf"
-                accept=".pdf"
-                className={styles.fileInput}
-                onChange={handleChange}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.comentarios}>
-          <label htmlFor="comentarios">Comentarios:</label>
-          <textarea
-            id="comentarios"
-            name="comentarios"
-            className={styles.textarea}
-            value={formData.comentarios}
+        <label htmlFor="nuevoProveedor" className={styles.etiqueta}>Añadir proveedor:</label>
+        <div className={styles.inlineGroup}>
+          <input
+            type="text"
+            id="nuevoProveedor"
+            name="nuevoProveedor"
+            className={styles.input}
+            value={formData.nuevoProveedor}
             onChange={handleChange}
+            placeholder="Nombre proveedor"
           />
+          <button
+            type="button"
+            className={styles.botonSecundario}
+            onClick={handleAddProveedor}
+          >
+            Añadir
+          </button>
         </div>
 
-        <div className={styles.fila}>
-          <button type="submit" className={styles.boton}>SUBIR ORDEN</button>
-        </div>
+        <label htmlFor="numInversion" className={styles.etiqueta}>Número de inversión:</label>
+        <input
+          type="text"
+          id="numInversion"
+          name="numInversion"
+          className={styles.input}
+          value={formData.numInversion}
+          onChange={handleChange}
+          placeholder="Nº Inversión"
+        />
+
+        <label htmlFor="pdf" className={styles.etiqueta}>Subir PDF:</label>
+        <input
+          type="file"
+          id="pdf"
+          name="pdf"
+          accept=".pdf"
+          className={styles.fileInput}
+          onChange={handleChange}
+        />
+
+        <label htmlFor="comentarios" className={styles.etiqueta}>Comentarios:</label>
+        <textarea
+          id="comentarios"
+          name="comentarios"
+          className={styles.textarea}
+          value={formData.comentarios}
+          onChange={handleChange}
+        />
+
+        <button type="submit" className={styles.boton}>SUBIR ORDEN</button>
       </form>
     </main>
   );
