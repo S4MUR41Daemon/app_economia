@@ -3,9 +3,13 @@
 import styles from './orden.module.css';
 import { useEffect, useState } from 'react';
 import useDepartamento from '@/utils/useDepartamento';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Orden() {
   const departamento = useDepartamento();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const success = searchParams.get('success');
 
   const [proveedores, setProveedores] = useState([]);
   const [formData, setFormData] = useState({
@@ -17,7 +21,6 @@ export default function Orden() {
     comentarios: '',
   });
 
-  // Cargar proveedores del departamento
   useEffect(() => {
     const fetchProveedores = async () => {
       if (!departamento) return;
@@ -35,10 +38,18 @@ export default function Orden() {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
+    if (name === 'pdf') {
+      const file = files[0];
+      setFormData((prev) => ({
+        ...prev,
+        pdf: file,
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleAddProveedor = async () => {
@@ -55,7 +66,6 @@ export default function Orden() {
       });
 
       const { cif } = await res.json();
-
       const resLista = await fetch(`/api/proveedores?departamento=${departamento}`);
       const data = await resLista.json();
       setProveedores(data.proveedores || []);
@@ -75,6 +85,11 @@ export default function Orden() {
     e.preventDefault();
     if (!departamento) return alert('No hay departamento seleccionado.');
 
+    if (!formData.pdf) {
+      alert('Por favor, sube un archivo PDF antes de enviar.');
+      return;
+    }
+
     try {
       const datos = new FormData();
       datos.append('departamento', departamento);
@@ -87,11 +102,15 @@ export default function Orden() {
         body: datos,
       });
 
-      if (!res.ok) throw new Error('Error al subir la orden');
-      alert('Orden subida correctamente');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData?.error || 'Error al subir la orden');
+      }
+
+      router.push('/nueva_orden?success=1');
     } catch (err) {
-      console.error(err);
-      alert('Error al subir la orden');
+      console.error('Error al enviar el formulario:', err);
+      alert(err.message || 'Error al subir la orden');
     }
   };
 
@@ -101,6 +120,10 @@ export default function Orden() {
 
   return (
     <main className={styles.main}>
+      {success === '1' && (
+        <div className={styles.popup}>Orden de compra subida con éxito ✅</div>
+      )}
+
       <form onSubmit={handleSubmit} className={styles.formVertical}>
         <label htmlFor="proveedor" className={styles.etiqueta}>Proveedor:</label>
         <select
