@@ -2,7 +2,7 @@
 
 import './presupuesto.css';
 import { useState, useEffect } from 'react';
-import useDepartamento from '@/utils/useDepartamento'; // Ajusta si la ruta cambia
+import useDepartamento from '@/utils/useDepartamento';
 
 export default function BolsaPresupuestos() {
   const departamento = useDepartamento();
@@ -15,12 +15,10 @@ export default function BolsaPresupuestos() {
 
     const fetchData = async () => {
       try {
-        // Traer saldo actual
         const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
         const saldoData = await resSaldo.json();
-        setSaldoPresupuesto(saldoData.saldoPresupuesto);
+        setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
 
-        // Traer últimas órdenes
         const resOrdenes = await fetch(`/api/orden_presu/ordenes?departamento=${departamento}`);
         const ordenesData = await resOrdenes.json();
         setOrdenes(ordenesData.ordenes || []);
@@ -41,6 +39,34 @@ export default function BolsaPresupuestos() {
     return nuevaFecha.toLocaleDateString('es-ES');
   };
 
+  const eliminarOrden = async (codigo, documento_pdf) => {
+    try {
+      const res = await fetch('/api/eliminar_orden', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ codigo, documento_pdf }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al eliminar la orden');
+      }
+
+      // Recargar datos después de eliminar
+      const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
+      const saldoData = await resSaldo.json();
+      setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
+
+      const resOrdenes = await fetch(`/api/orden_presu/ordenes?departamento=${departamento}`);
+      const ordenesData = await resOrdenes.json();
+      setOrdenes(ordenesData.ordenes || []);
+
+    } catch (error) {
+      console.error('Error eliminando la orden:', error);
+    }
+  };
+
   if (!departamento) {
     return <p style={{ textAlign: 'center', padding: '2rem' }}>Cargando departamento...</p>;
   }
@@ -52,7 +78,9 @@ export default function BolsaPresupuestos() {
       <div className="saldos-container">
         <div className="saldo-box">
           <div className="saldo-title">SALDO ACTUAL</div>
-          <div className="saldo-amount">{saldoPresupuesto.toLocaleString('es-ES')}€</div>
+          <div className="saldo-amount">
+            {Number(saldoPresupuesto).toLocaleString('es-ES')}€
+          </div>
         </div>
       </div>
 
@@ -71,8 +99,8 @@ export default function BolsaPresupuestos() {
         </div>
 
         {ordenes.length > 0 ? (
-          ordenes.map((orden) => (
-            <div key={orden.codigo}>
+          ordenes.map((orden, index) => (
+            <div key={`${orden.codigo}-${orden.fecha || index}`}>
               <div
                 className="transaction-row"
                 onClick={() => toggleTransaction(orden.codigo)}
@@ -97,9 +125,22 @@ export default function BolsaPresupuestos() {
                   </div>
                   <div className="provider-products">
                     <div className="button-container">
-                      <button className="button">Ver PDF</button>
-                      <button className="button">Ver Facturas</button>
-                      <button className="button button-danger">Eliminar</button>
+                      {orden.documento_pdf && (
+                        <a
+                          className="button"
+                          href={`/uploads/${orden.documento_pdf}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Ver PDF
+                        </a>
+                      )}
+                      <button
+                        className="button button-danger"
+                        onClick={() => eliminarOrden(orden.codigo, orden.documento_pdf)}
+                      >
+                        Eliminar
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -107,9 +148,7 @@ export default function BolsaPresupuestos() {
             </div>
           ))
         ) : (
-          <div className="transaction-row">
-            No hay órdenes disponibles.
-          </div>
+          <div className="transaction-row">No hay órdenes disponibles.</div>
         )}
       </div>
     </div>

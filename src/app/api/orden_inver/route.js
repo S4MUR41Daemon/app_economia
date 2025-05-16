@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const idDepartamento = searchParams.get('departamento');
+  const idDepartamento = parseInt(searchParams.get('departamento'));
 
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
@@ -15,11 +15,11 @@ export async function GET(request) {
   try {
     const [rows] = await connection.execute(
       `
-      SELECT i.cantidad
+      SELECT SUM(i.cantidad) AS saldo
       FROM Inversion i
       INNER JOIN Bolsa b ON i.id_Bolsa_Inversion = b.id
       WHERE b.id_Departamento = ?
-        AND YEAR(b.año) = 2025
+        AND YEAR(b.año) = YEAR(CURDATE())
       `,
       [idDepartamento]
     );
@@ -27,7 +27,7 @@ export async function GET(request) {
     await connection.end();
 
     return NextResponse.json({
-      saldoInventariable: rows.length > 0 ? rows[0].cantidad : 0,
+      saldoInventariable: rows[0]?.saldo || 0,
     });
   } catch (error) {
     console.error('Error al obtener saldo inventariable:', error);
