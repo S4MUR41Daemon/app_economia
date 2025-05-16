@@ -2,7 +2,7 @@
 
 import './bolsa-inversiones.css';
 import { useState, useEffect } from 'react';
-import useDepartamento from '@/utils/useDepartamento'; // ajusta la ruta si es necesario
+import useDepartamento from '@/utils/useDepartamento';
 
 export default function BolsaInversiones() {
   const departamento = useDepartamento();
@@ -50,7 +50,7 @@ export default function BolsaInversiones() {
       <div className="saldos-container">
         <div className="saldo-box">
           <div className="saldo-title">SALDO ACTUAL</div>
-          <div className="saldo-amount">{saldoInventariable.toLocaleString('es-ES')}€</div>
+          <div className="saldo-amount">{Number(saldoInventariable).toLocaleString('es-ES')}€</div>
         </div>
       </div>
 
@@ -69,8 +69,8 @@ export default function BolsaInversiones() {
         </div>
 
         {ordenes.length > 0 ? (
-          ordenes.map((orden) => (
-            <div key={orden.codigo}>
+          ordenes.map((orden, index) => (
+            <div key={`${orden.codigo}-${orden.fecha || index}`}>
               <div
                 className="transaction-row"
                 onClick={() => toggleTransaction(orden.codigo)}
@@ -95,8 +95,16 @@ export default function BolsaInversiones() {
                   </div>
                   <div className="provider-products">
                     <div className="button-container">
-                      <button className="button">Ver PDF</button>
-                      <button className="button">Ver Facturas</button>
+                      {orden.documento_pdf && (
+                        <a
+                          className="button"
+                          href={`/uploads/${orden.documento_pdf}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Ver PDF
+                        </a>
+                      )}
                       <button className="button button-danger">Eliminar</button>
                     </div>
                   </div>

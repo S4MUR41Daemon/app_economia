@@ -3,7 +3,7 @@ import mysql from 'mysql2/promise';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
-  const idDepartamento = searchParams.get('id');
+  const idDepartamento = parseInt(searchParams.get('id'));
 
   const connection = await mysql.createConnection({
     host: process.env.DB_HOST,
@@ -19,7 +19,7 @@ export async function GET(request) {
       FROM Inversion i
       INNER JOIN Bolsa b ON i.id_Bolsa_Inversion = b.id
       WHERE b.id_Departamento = ?
-        AND YEAR(b.año) = 2025
+        AND YEAR(b.año) = YEAR(CURDATE())
       `,
       [idDepartamento]
     );
