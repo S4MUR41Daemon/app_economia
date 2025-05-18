@@ -10,6 +10,7 @@ export default function BolsaInversiones() {
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoInventariable, setSaldoInventariable] = useState(0);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastTipo, setToastTipo] = useState(''); // 'success' o 'error'
   const [ordenAEliminar, setOrdenAEliminar] = useState(null);
 
   useEffect(() => {
@@ -68,10 +69,12 @@ export default function BolsaInversiones() {
       setOrdenes(ordenesData.ordenes || []);
 
       setToastMessage('Orden eliminada con éxito ✅');
+      setToastTipo('success');
       setTimeout(() => setToastMessage(''), 3000);
     } catch (error) {
       console.error(error);
       setToastMessage('⚠️ Error al eliminar la orden');
+      setToastTipo('error');
       setTimeout(() => setToastMessage(''), 3000);
     } finally {
       setOrdenAEliminar(null);
@@ -86,7 +89,11 @@ export default function BolsaInversiones() {
     <div className="bolsa-inversiones">
       <h1>Bolsa de Inversiones</h1>
 
-      {toastMessage && <div className="toast">{toastMessage}</div>}
+      {toastMessage && (
+        <div className={`toast ${toastTipo === 'success' ? 'toast-success' : 'toast-error'}`}>
+          {toastMessage}
+        </div>
+      )}
 
       {ordenAEliminar && (
         <div className="modal-overlay">
@@ -171,9 +178,7 @@ export default function BolsaInversiones() {
             </div>
           ))
         ) : (
-          <div className="transaction-row">
-            No hay órdenes disponibles.
-          </div>
+          <div className="transaction-row">No hay órdenes disponibles.</div>
         )}
       </div>
     </div>
