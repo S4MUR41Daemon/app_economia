@@ -9,22 +9,20 @@ export default function BolsaPresupuestos() {
   const [ordenes, setOrdenes] = useState([]);
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoPresupuesto, setSaldoPresupuesto] = useState(0);
+  const [toastMessage, setToastMessage] = useState('');
+  const [ordenAEliminar, setOrdenAEliminar] = useState(null);
 
   useEffect(() => {
     if (!departamento) return;
 
     const fetchData = async () => {
-      try {
-        const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
-        const saldoData = await resSaldo.json();
-        setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
+      const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
+      const saldoData = await resSaldo.json();
+      setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
 
-        const resOrdenes = await fetch(`/api/orden_presu/ordenes?departamento=${departamento}`);
-        const ordenesData = await resOrdenes.json();
-        setOrdenes(ordenesData.ordenes || []);
-      } catch (error) {
-        console.error('Error cargando datos:', error);
-      }
+      const resOrdenes = await fetch(`/api/orden_presu/ordenes?departamento=${departamento}`);
+      const ordenesData = await resOrdenes.json();
+      setOrdenes(ordenesData.ordenes || []);
     };
 
     fetchData();
@@ -39,21 +37,30 @@ export default function BolsaPresupuestos() {
     return nuevaFecha.toLocaleDateString('es-ES');
   };
 
-  const eliminarOrden = async (codigo, documento_pdf) => {
+  const confirmarEliminacion = (codigo, documento_pdf) => {
+    setOrdenAEliminar({ codigo, documento_pdf });
+  };
+
+  const cancelarEliminacion = () => {
+    setOrdenAEliminar(null);
+  };
+
+  const eliminarOrden = async () => {
+    if (!ordenAEliminar) return;
+    const { codigo, documento_pdf } = ordenAEliminar;
+
     try {
       const res = await fetch('/api/eliminar_orden', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ codigo, documento_pdf }),
       });
 
-      if (!res.ok) {
-        throw new Error('Error al eliminar la orden');
-      }
+      const result = await res.json();
 
-      // Recargar datos después de eliminar
+      if (!res.ok) throw new Error(result.error || 'Error al eliminar');
+
+      // Refrescar datos
       const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
       const saldoData = await resSaldo.json();
       setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
@@ -62,8 +69,14 @@ export default function BolsaPresupuestos() {
       const ordenesData = await resOrdenes.json();
       setOrdenes(ordenesData.ordenes || []);
 
+      setToastMessage('Orden eliminada con éxito ✅');
+      setTimeout(() => setToastMessage(''), 3000);
     } catch (error) {
-      console.error('Error eliminando la orden:', error);
+      console.error(error);
+      setToastMessage('⚠️ Error al eliminar la orden');
+      setTimeout(() => setToastMessage(''), 3000);
+    } finally {
+      setOrdenAEliminar(null);
     }
   };
 
@@ -74,6 +87,20 @@ export default function BolsaPresupuestos() {
   return (
     <div className="bolsa-inversiones">
       <h1>Bolsa de Presupuestos</h1>
+
+      {toastMessage && <div className="toast">{toastMessage}</div>}
+
+      {ordenAEliminar && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <p>¿Estás seguro de que quieres eliminar esta orden?</p>
+            <div className="modal-buttons">
+              <button onClick={eliminarOrden} className="button button-danger">Sí</button>
+              <button onClick={cancelarEliminacion} className="button">No</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="saldos-container">
         <div className="saldo-box">
@@ -137,7 +164,7 @@ export default function BolsaPresupuestos() {
                       )}
                       <button
                         className="button button-danger"
-                        onClick={() => eliminarOrden(orden.codigo, orden.documento_pdf)}
+                        onClick={() => confirmarEliminacion(orden.codigo, orden.documento_pdf)}
                       >
                         Eliminar
                       </button>
