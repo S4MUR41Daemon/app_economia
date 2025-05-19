@@ -3,14 +3,18 @@
 import './bolsa-inversiones.css';
 import { useState, useEffect } from 'react';
 import useDepartamento from '@/utils/useDepartamento';
+import { useSession } from 'next-auth/react';
 
 export default function BolsaInversiones() {
   const departamento = useDepartamento();
+  const { data: session } = useSession();
+  const rol = session?.user?.rol;
+
   const [ordenes, setOrdenes] = useState([]);
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoInventariable, setSaldoInventariable] = useState(0);
   const [toastMessage, setToastMessage] = useState('');
-  const [toastTipo, setToastTipo] = useState(''); // 'success' o 'error'
+  const [toastTipo, setToastTipo] = useState('');
   const [ordenAEliminar, setOrdenAEliminar] = useState(null);
 
   useEffect(() => {
@@ -39,6 +43,12 @@ export default function BolsaInversiones() {
   };
 
   const confirmarEliminacion = (codigo, documento_pdf) => {
+    if (rol === 'contable') {
+      setToastMessage('❌ No tienes permisos para eliminar esta orden.');
+      setToastTipo('error');
+      setTimeout(() => setToastMessage(''), 3000);
+      return;
+    }
     setOrdenAEliminar({ codigo, documento_pdf });
   };
 
@@ -70,14 +80,13 @@ export default function BolsaInversiones() {
 
       setToastMessage('Orden eliminada con éxito ✅');
       setToastTipo('success');
-      setTimeout(() => setToastMessage(''), 3000);
     } catch (error) {
       console.error(error);
       setToastMessage('⚠️ Error al eliminar la orden');
       setToastTipo('error');
-      setTimeout(() => setToastMessage(''), 3000);
     } finally {
       setOrdenAEliminar(null);
+      setTimeout(() => setToastMessage(''), 3000);
     }
   };
 
@@ -165,12 +174,14 @@ export default function BolsaInversiones() {
                           Ver PDF
                         </a>
                       )}
-                      <button
-                        className="button button-danger"
-                        onClick={() => confirmarEliminacion(orden.codigo, orden.documento_pdf)}
-                      >
-                        Eliminar
-                      </button>
+                      {rol !== 'contable' && (
+                        <button
+                          className="button button-danger"
+                          onClick={() => confirmarEliminacion(orden.codigo, orden.documento_pdf)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

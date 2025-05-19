@@ -4,11 +4,13 @@ import styles from './orden.module.css';
 import { useEffect, useState } from 'react';
 import useDepartamento from '@/utils/useDepartamento';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 export default function Orden() {
   const departamento = useDepartamento();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session, status } = useSession();
   const success = searchParams.get('success');
 
   const [proveedores, setProveedores] = useState([]);
@@ -21,6 +23,23 @@ export default function Orden() {
     comentarios: '',
   });
 
+  // ⏳ Espera a que cargue la sesión
+  if (status === 'loading') {
+    return <main className={styles.main}><p>Cargando...</p></main>;
+  }
+
+  const usuario = session?.user;
+  const rol = usuario?.rol;
+
+  // ❌ Bloquear contables
+  if (rol === 'contable') {
+    if (typeof window !== 'undefined') {
+      alert('No dispones de permisos para acceder a esta página');
+      window.location.href = '/';
+    }
+    return null;
+  }
+
   useEffect(() => {
     const fetchProveedores = async () => {
       if (!departamento) return;
@@ -32,7 +51,6 @@ export default function Orden() {
         console.error('Error al cargar proveedores:', err);
       }
     };
-
     fetchProveedores();
   }, [departamento]);
 
@@ -40,15 +58,9 @@ export default function Orden() {
     const { name, value, files } = e.target;
     if (name === 'pdf') {
       const file = files[0];
-      setFormData((prev) => ({
-        ...prev,
-        pdf: file,
-      }));
+      setFormData((prev) => ({ ...prev, pdf: file }));
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
   };
 
@@ -59,22 +71,14 @@ export default function Orden() {
       const res = await fetch('/api/proveedores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre: formData.nuevoProveedor,
-          departamento,
-        }),
+        body: JSON.stringify({ nombre: formData.nuevoProveedor, departamento }),
       });
 
       const { cif } = await res.json();
       const resLista = await fetch(`/api/proveedores?departamento=${departamento}`);
       const data = await resLista.json();
       setProveedores(data.proveedores || []);
-
-      setFormData((prev) => ({
-        ...prev,
-        proveedor: cif,
-        nuevoProveedor: '',
-      }));
+      setFormData((prev) => ({ ...prev, proveedor: cif, nuevoProveedor: '' }));
     } catch (err) {
       console.error('Error al añadir proveedor:', err);
       alert('No se pudo añadir el proveedor');
@@ -84,7 +88,6 @@ export default function Orden() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!departamento) return alert('No hay departamento seleccionado.');
-
     if (!formData.pdf) {
       alert('Por favor, sube un archivo PDF antes de enviar.');
       return;
