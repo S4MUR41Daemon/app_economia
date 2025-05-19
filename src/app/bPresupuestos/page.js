@@ -3,15 +3,19 @@
 import './presupuesto.css';
 import { useState, useEffect } from 'react';
 import useDepartamento from '@/utils/useDepartamento';
+import { useSession } from 'next-auth/react';
 
 export default function BolsaPresupuestos() {
   const departamento = useDepartamento();
+  const { data: session } = useSession();
   const [ordenes, setOrdenes] = useState([]);
   const [expandedTransaction, setExpandedTransaction] = useState(null);
   const [saldoPresupuesto, setSaldoPresupuesto] = useState(0);
   const [toastMessage, setToastMessage] = useState('');
-  const [toastTipo, setToastTipo] = useState(''); // 'success' o 'error'
+  const [toastTipo, setToastTipo] = useState('');
   const [ordenAEliminar, setOrdenAEliminar] = useState(null);
+
+  const rol = session?.user?.rol;
 
   useEffect(() => {
     if (!departamento) return;
@@ -39,6 +43,13 @@ export default function BolsaPresupuestos() {
   };
 
   const confirmarEliminacion = (codigo, documento_pdf) => {
+    if (rol === 'contable') {
+      setToastMessage('❌ No tienes permisos para eliminar esta orden.');
+      setToastTipo('error');
+      setTimeout(() => setToastMessage(''), 3000);
+      return;
+    }
+
     setOrdenAEliminar({ codigo, documento_pdf });
   };
 
@@ -60,7 +71,6 @@ export default function BolsaPresupuestos() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || 'Error al eliminar');
 
-      // Refrescar datos
       const resSaldo = await fetch(`/api/orden_presu?departamento=${departamento}`);
       const saldoData = await resSaldo.json();
       setSaldoPresupuesto(saldoData.saldoPresupuesto || 0);
@@ -71,14 +81,13 @@ export default function BolsaPresupuestos() {
 
       setToastMessage('Orden eliminada con éxito ✅');
       setToastTipo('success');
-      setTimeout(() => setToastMessage(''), 3000);
     } catch (error) {
       console.error(error);
       setToastMessage('⚠️ Error al eliminar la orden');
       setToastTipo('error');
-      setTimeout(() => setToastMessage(''), 3000);
     } finally {
       setOrdenAEliminar(null);
+      setTimeout(() => setToastMessage(''), 3000);
     }
   };
 
@@ -168,12 +177,14 @@ export default function BolsaPresupuestos() {
                           Ver PDF
                         </a>
                       )}
-                      <button
-                        className="button button-danger"
-                        onClick={() => confirmarEliminacion(orden.codigo, orden.documento_pdf)}
-                      >
-                        Eliminar
-                      </button>
+                      {rol !== 'contable' && (
+                        <button
+                          className="button button-danger"
+                          onClick={() => confirmarEliminacion(orden.codigo, orden.documento_pdf)}
+                        >
+                          Eliminar
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

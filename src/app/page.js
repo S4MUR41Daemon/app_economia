@@ -41,9 +41,6 @@ export default function Login() {
           </button>
         </form>
 
-        <p className={styles.pregunta}>
-          ¿Has olvidado tu contraseña?
-        </p>
       </main>
 
       <div className={styles.imagenDecorativa}></div>
