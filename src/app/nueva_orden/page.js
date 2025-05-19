@@ -23,22 +23,13 @@ export default function Orden() {
     comentarios: '',
   });
 
-  // ⏳ Espera a que cargue la sesión
-  if (status === 'loading') {
-    return <main className={styles.main}><p>Cargando...</p></main>;
-  }
-
-  const usuario = session?.user;
-  const rol = usuario?.rol;
-
-  // ❌ Bloquear contables
-  if (rol === 'contable') {
-    if (typeof window !== 'undefined') {
-      alert('No dispones de permisos para acceder a esta página');
-      window.location.href = '/';
+  // ⛔ Bloquear contables
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.rol === 'contable') {
+      alert('No dispones de permisos para acceder a esta página.');
+      router.push('/Principal');
     }
-    return null;
-  }
+  }, [session, status, router]);
 
   useEffect(() => {
     const fetchProveedores = async () => {
@@ -78,7 +69,12 @@ export default function Orden() {
       const resLista = await fetch(`/api/proveedores?departamento=${departamento}`);
       const data = await resLista.json();
       setProveedores(data.proveedores || []);
-      setFormData((prev) => ({ ...prev, proveedor: cif, nuevoProveedor: '' }));
+
+      setFormData((prev) => ({
+        ...prev,
+        proveedor: cif,
+        nuevoProveedor: '',
+      }));
     } catch (err) {
       console.error('Error al añadir proveedor:', err);
       alert('No se pudo añadir el proveedor');
@@ -88,6 +84,7 @@ export default function Orden() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!departamento) return alert('No hay departamento seleccionado.');
+
     if (!formData.pdf) {
       alert('Por favor, sube un archivo PDF antes de enviar.');
       return;
@@ -96,9 +93,7 @@ export default function Orden() {
     try {
       const datos = new FormData();
       datos.append('departamento', departamento);
-      Object.entries(formData).forEach(([key, value]) =>
-        datos.append(key, value)
-      );
+      Object.entries(formData).forEach(([key, value]) => datos.append(key, value));
 
       const res = await fetch('/api/nueva_orden', {
         method: 'POST',
@@ -117,7 +112,7 @@ export default function Orden() {
     }
   };
 
-  if (!departamento) {
+  if (!departamento || status === 'loading') {
     return <main className={styles.main}><p>Cargando departamento...</p></main>;
   }
 
