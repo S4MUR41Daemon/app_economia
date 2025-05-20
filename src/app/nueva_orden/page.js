@@ -138,6 +138,41 @@ export default function Orden() {
             </option>
           ))}
         </select>
+        {formData.proveedor && (
+  <button
+    type="button"
+    onClick={async () => {
+      const confirmacion = confirm('¿Seguro que quieres eliminar este proveedor?');
+      if (!confirmacion) return;
+
+      try {
+        const res = await fetch('/api/proveedores/eliminar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cif: formData.proveedor }),
+        });
+
+        if (!res.ok) throw new Error('Error al eliminar');
+
+        // Recargar lista de proveedores
+        const nuevaRes = await fetch(`/api/proveedores?departamento=${departamento}`);
+        const nuevaData = await nuevaRes.json();
+        setProveedores(nuevaData.proveedores || []);
+
+        // Limpiar selección
+        setFormData((prev) => ({ ...prev, proveedor: '' }));
+
+        alert('Proveedor eliminado con éxito ✅');
+      } catch (error) {
+        alert('Error al eliminar proveedor');
+      }
+    }}
+    className={styles.botonSecundario}
+    style={{ marginTop: '0.5rem' }}
+      >
+        Eliminar proveedor seleccionado
+      </button>
+    )}
 
         <label htmlFor="departamento" className={styles.etiqueta}>Departamento:</label>
         <input
