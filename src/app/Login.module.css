@@ -1,24 +1,301 @@
+/* Login.module.css - Icono en el lado rojo */
+
 .fondo {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-    background-color: white;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  background-color: white;
+  overflow: hidden; /* Previene scroll innecesario */
+}
+
+.contenido {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem;
+  position: relative;
+  animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.imagenDecorativa {
+  flex: 1;
+  background-image: url('/fondoLogin.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: right center;
+  position: relative;
+  box-shadow: -10px 0 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.5s ease;
+}
+
+/* Icono completamente en el lado derecho (rojo) */
+.imagenDecorativa::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -1%; /* Posicionado más hacia el centro de la parte derecha */
+  left: auto;
+  transform: translateY(-50%);
+  width: 700px;
+  height: 700px;
+  background-image: url('/iconos-personas.png'); 
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+  z-index: 2;
+  mix-blend-mode: multiply; /* Mejora integración con fondo rojo */
+  filter: contrast(1.2) drop-shadow(0 0 15px rgba(0, 0, 0, 0.25));
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(-50%) translateX(10px); }
+  100% { transform: translateY(-50%) translateX(0); }
+}
+
+/* Efecto sutil de hover en la imagen */
+.imagenDecorativa:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.fondo:hover .imagenDecorativa:after {
+  opacity: 1;
+}
+
+.contenido h1 {
+  font-size: 3rem;
+  margin-bottom: 2.5rem;
+  font-weight: 700;
+  color: #333;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+}
+
+/* Línea decorativa bajo el título */
+.contenido h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background-color: #ffd8d8;
+  border-radius: 2px;
+}
+
+.contenido h2 {
+  font-size: 1.8rem;
+  color: #444;
+  margin-bottom: 2rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.8; }
+  50% { opacity: 1; }
+  100% { opacity: 0.8; }
+}
+
+.contenido form {
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  margin-top: 1rem;
+}
+
+.contenido label {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: #444;
+  display: block;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s;
+}
+
+.botonGoogle {
+  background-color: #ffd8d8;
+  color: #333;
+  border: none;
+  padding: 1.2rem 1.8rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Efecto de onda al hacer clic */
+.botonGoogle::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.8s;
+}
+
+.botonGoogle:active::after {
+  transform: scale(0, 0);
+  opacity: 0.3;
+  transition: 0s;
+}
+
+/* Icono de Google con mejor contraste */
+.botonGoogle::before {
+  content: "";
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px"><path fill="%23FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="%23FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="%234CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="%231976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>');
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  margin-right: 12px;
+  transition: transform 0.3s ease;
+}
+
+.botonGoogle:hover {
+  background-color: #ffb8b8;
+  transform: translateY(-3px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.botonGoogle:hover::before {
+  transform: rotate(10deg);
+}
+
+.botonGoogle:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Media queries para responsividad */
+@media (max-width: 992px) {
+  .fondo {
+    flex-direction: column;
   }
   
   .contenido {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 2rem;
+    order: 2;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    align-items: center;
+  }
+  
+  .contenido h1::after {
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .imagenDecorativa {
-    flex: 1;
-    background-image: url('/fondoLogin.png');
-    background-repeat: no-repeat;
-    /*funciones guapas de css*/
-    background-size: cover; /*cubre todo el div aunque tenga que recortar por los lados.*/
-    background-position: right center; /* mantiene la img pegada a la derecha y centrada verticalmente.*/
+    order: 1;
+    height: 35vh;
+    background-position: center;
   }
   
+  .imagenDecorativa::before {
+    top: 50%;
+    right: 50%;
+    transform: translate(50%, -50%);
+    width: 200px;
+    height: 200px;
+  }
+  
+  @keyframes float {
+    0% { transform: translate(50%, -50%); }
+    50% { transform: translate(50%, -60%); }
+    100% { transform: translate(50%, -50%); }
+  }
+  
+  .contenido form {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contenido {
+    padding: 2rem 1.2rem;
+  }
+  
+  .contenido h1 {
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .contenido h1::after {
+    width: 60px;
+    height: 3px;
+  }
+  
+  .imagenDecorativa {
+    height: 30vh;
+  }
+  
+  .imagenDecorativa::before {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .botonGoogle {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+  }
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .contenido,
+  .botonGoogle,
+  .botonGoogle::before,
+  .botonGoogle::after,
+  .imagenDecorativa::before {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* Estado de carga mejorado para el texto "Cargando sesión..." */
+@keyframes shimmer {
+  0% { background-position: -468px 0; }
+  100% { background-position: 468px 0; }
+}
+
+.contenido h2 {
+  background: linear-gradient(to right, #f6f6f6 8%, #f0f0f0 18%, #f6f6f6 33%);
+  background-size: 800px 104px;
+  animation: shimmer 2s infinite linear;
+  display: inline-block;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}

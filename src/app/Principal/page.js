@@ -13,6 +13,7 @@ export default function Home() {
   const [inventariable, setInventariable] = useState(null);
   const [presupuesto, setPresupuesto] = useState(null);
   const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Redirige si no hay sesión
   useEffect(() => {
@@ -36,6 +37,8 @@ export default function Home() {
 
     const fetchSaldos = async () => {
       try {
+        setIsLoading(true);
+        
         const resInv = await fetch(`/api/cantidad_inventariable?id=${departamentoSeleccionado}`);
         const dataInv = await resInv.json();
         setInventariable(dataInv.cantidad);
@@ -43,8 +46,11 @@ export default function Home() {
         const resPresu = await fetch(`/api/cantidad_presupuesto?id=${departamentoSeleccionado}`);
         const dataPresu = await resPresu.json();
         setPresupuesto(dataPresu.cantidad);
+        
+        setIsLoading(false);
       } catch (error) {
         console.error('Error al cargar los saldos:', error);
+        setIsLoading(false);
       }
     };
 
@@ -63,7 +69,10 @@ export default function Home() {
   if (status === 'loading') {
     return (
       <main className={styles.main}>
-        <h2>Cargando sesión...</h2>
+        <div className={styles.loadingState}>
+          <div className={styles.loadingSpinner}></div>
+          <h2>Cargando sesión...</h2>
+        </div>
       </main>
     );
   }
@@ -91,19 +100,23 @@ export default function Home() {
 
       <div className={styles.contenedorDiv}>
         <div className={styles.sInv}>
-          <h2 className={styles.cardTitle}>SALDO INVERSIONES:</h2>
+          <h2 className={styles.cardTitle}>SALDO INVERSIONES</h2>
           <p className={styles.cardValue}>
-            {inventariable !== null
-              ? Number(inventariable).toLocaleString('es-ES') + '€'
-              : 'Cargando...'}
+            {isLoading ? (
+              <span className={styles.shimmer}>Cargando...</span>
+            ) : (
+              inventariable !== null && Number(inventariable).toLocaleString('es-ES')
+            )}
           </p>
         </div>
         <div className={styles.sPres}>
-          <h2 className={styles.cardTitle}>SALDO PRESUPUESTO:</h2>
+          <h2 className={styles.cardTitle}>SALDO PRESUPUESTO</h2>
           <p className={styles.cardValue}>
-            {presupuesto !== null
-              ? Number(presupuesto).toLocaleString('es-ES') + '€'
-              : 'Cargando...'}
+            {isLoading ? (
+              <span className={styles.shimmer}>Cargando...</span>
+            ) : (
+              presupuesto !== null && Number(presupuesto).toLocaleString('es-ES')
+            )}
           </p>
         </div>
       </div>
